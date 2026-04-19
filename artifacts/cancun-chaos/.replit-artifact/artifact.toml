@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Cancun Chaos"
+version = "1.0.0"
+id = "artifacts/cancun-chaos"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24506
+
+[services.development]
+run = "pnpm --filter @workspace/cancun-chaos run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/cancun-chaos", "run", "build" ]
+publicDir = "artifacts/cancun-chaos/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24506"
+BASE_PATH = "/"

@@ -1,22 +1,43 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Cancun Chaos Game API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: players
+    description: Player management
+  - name: characters
+    description: Character management
+  - name: map
+    description: Map and locations
+  - name: events
+    description: Game events
+  - name: minigames
+    description: Minigame sessions
+  - name: missions
+    description: Player missions
+  - name: inventory
+    description: Player inventory
+  - name: npcs
+    description: NPC management
+  - name: achievements
+    description: Achievements system
+  - name: social
+    description: Social features
+  - name: admin
+    description: Admin panel
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +45,942 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # --- PLAYERS ---
+  /players:
+    get:
+      operationId: listPlayers
+      tags: [players]
+      summary: List all players
+      responses:
+        "200":
+          description: List of players
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Player"
+    post:
+      operationId: createPlayer
+      tags: [players]
+      summary: Create or login a player
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlayerBody"
+      responses:
+        "201":
+          description: Player created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+
+  /players/{id}:
+    get:
+      operationId: getPlayer
+      tags: [players]
+      summary: Get player by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+        "404":
+          description: Not found
+    patch:
+      operationId: updatePlayer
+      tags: [players]
+      summary: Update player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlayerBody"
+      responses:
+        "200":
+          description: Updated player
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Player"
+    delete:
+      operationId: deletePlayer
+      tags: [players, admin]
+      summary: Delete player (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /players/{id}/summary:
+    get:
+      operationId: getPlayerSummary
+      tags: [players]
+      summary: Get "while you were away" summary for player
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Player summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlayerSummary"
+
+  /players/{id}/move:
+    post:
+      operationId: movePlayer
+      tags: [players, map]
+      summary: Move player to a new hex location
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MovePlayerBody"
+      responses:
+        "200":
+          description: Move result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoveResult"
+
+  # --- CHARACTERS ---
+  /characters/{playerId}:
+    get:
+      operationId: getCharacter
+      tags: [characters]
+      summary: Get character for player
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Character
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+    patch:
+      operationId: updateCharacter
+      tags: [characters]
+      summary: Update character
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCharacterBody"
+      responses:
+        "200":
+          description: Updated character
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Character"
+
+  # --- MAP / LOCATIONS ---
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [map]
+      summary: List all map locations
+      responses:
+        "200":
+          description: List of locations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Location"
+    post:
+      operationId: createLocation
+      tags: [map, admin]
+      summary: Create a location (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationBody"
+      responses:
+        "201":
+          description: Created location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+
+  /locations/{id}:
+    patch:
+      operationId: updateLocation
+      tags: [map, admin]
+      summary: Update a location (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLocationBody"
+      responses:
+        "200":
+          description: Updated location
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Location"
+    delete:
+      operationId: deleteLocation
+      tags: [map, admin]
+      summary: Delete a location (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /houses:
+    get:
+      operationId: listHouses
+      tags: [map]
+      summary: List all player houses on the map
+      responses:
+        "200":
+          description: List of houses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/House"
+
+  /houses/{playerId}:
+    get:
+      operationId: getHouse
+      tags: [map]
+      summary: Get player's house
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: House
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/House"
+    patch:
+      operationId: updateHouse
+      tags: [map]
+      summary: Update player's house
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateHouseBody"
+      responses:
+        "200":
+          description: Updated house
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/House"
+
+  /houses/{playerId}/visit:
+    post:
+      operationId: visitHouse
+      tags: [map, social]
+      summary: Visit another player's house
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VisitHouseBody"
+      responses:
+        "200":
+          description: Visit result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitResult"
+
+  # --- EVENTS ---
+  /events:
+    get:
+      operationId: listEvents
+      tags: [events]
+      summary: List all game events
+      responses:
+        "200":
+          description: Events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameEvent"
+    post:
+      operationId: createEvent
+      tags: [events, admin]
+      summary: Create a game event (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventBody"
+      responses:
+        "201":
+          description: Created event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameEvent"
+
+  /events/{id}:
+    patch:
+      operationId: updateEvent
+      tags: [events, admin]
+      summary: Update a game event (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateEventBody"
+      responses:
+        "200":
+          description: Updated event
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GameEvent"
+    delete:
+      operationId: deleteEvent
+      tags: [events, admin]
+      summary: Delete a game event (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /events/global:
+    get:
+      operationId: listGlobalEvents
+      tags: [events]
+      summary: List currently active global events
+      responses:
+        "200":
+          description: Active global events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameEvent"
+
+  /events/trigger/{playerId}:
+    post:
+      operationId: triggerEvent
+      tags: [events]
+      summary: Trigger a random event for a player
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TriggerEventBody"
+      responses:
+        "200":
+          description: Event result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventResult"
+
+  # --- MINIGAMES ---
+  /minigames:
+    get:
+      operationId: listMinigames
+      tags: [minigames]
+      summary: List all minigame definitions
+      responses:
+        "200":
+          description: Minigames
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Minigame"
+    post:
+      operationId: createMinigame
+      tags: [minigames, admin]
+      summary: Create a minigame (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMinigameBody"
+      responses:
+        "201":
+          description: Created minigame
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Minigame"
+
+  /minigames/{id}:
+    patch:
+      operationId: updateMinigame
+      tags: [minigames, admin]
+      summary: Update a minigame (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMinigameBody"
+      responses:
+        "200":
+          description: Updated minigame
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Minigame"
+
+  /minigames/{id}/play:
+    post:
+      operationId: playMinigame
+      tags: [minigames]
+      summary: Submit minigame result
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlayMinigameBody"
+      responses:
+        "200":
+          description: Play result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MinigameResult"
+
+  # --- MISSIONS ---
+  /missions:
+    get:
+      operationId: listMissions
+      tags: [missions]
+      summary: List all missions
+      responses:
+        "200":
+          description: Missions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Mission"
+    post:
+      operationId: createMission
+      tags: [missions]
+      summary: Create a mission (player or admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMissionBody"
+      responses:
+        "201":
+          description: Created mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+
+  /missions/{id}:
+    patch:
+      operationId: updateMission
+      tags: [missions, admin]
+      summary: Update a mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateMissionBody"
+      responses:
+        "200":
+          description: Updated mission
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Mission"
+    delete:
+      operationId: deleteMission
+      tags: [missions, admin]
+      summary: Delete a mission (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /missions/{id}/complete:
+    post:
+      operationId: completeMission
+      tags: [missions]
+      summary: Complete a mission
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteMissionBody"
+      responses:
+        "200":
+          description: Completion result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionResult"
+
+  # --- INVENTORY ---
+  /inventory/{playerId}:
+    get:
+      operationId: getInventory
+      tags: [inventory]
+      summary: Get player's inventory
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+    post:
+      operationId: addInventoryItem
+      tags: [inventory]
+      summary: Add item to inventory
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddInventoryItemBody"
+      responses:
+        "201":
+          description: Added item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+
+  /inventory/{playerId}/{itemId}:
+    delete:
+      operationId: removeInventoryItem
+      tags: [inventory]
+      summary: Remove item from inventory
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Removed
+
+  # --- NPCs ---
+  /npcs:
+    get:
+      operationId: listNpcs
+      tags: [npcs]
+      summary: List all NPCs
+      responses:
+        "200":
+          description: NPCs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Npc"
+    post:
+      operationId: createNpc
+      tags: [npcs, admin]
+      summary: Create an NPC (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNpcBody"
+      responses:
+        "201":
+          description: Created NPC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Npc"
+
+  /npcs/{id}:
+    patch:
+      operationId: updateNpc
+      tags: [npcs, admin]
+      summary: Update an NPC (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNpcBody"
+      responses:
+        "200":
+          description: Updated NPC
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Npc"
+    delete:
+      operationId: deleteNpc
+      tags: [npcs, admin]
+      summary: Delete an NPC (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # --- ACHIEVEMENTS ---
+  /achievements:
+    get:
+      operationId: listAchievements
+      tags: [achievements]
+      summary: List all achievements
+      responses:
+        "200":
+          description: Achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Achievement"
+
+  /achievements/{playerId}:
+    get:
+      operationId: getPlayerAchievements
+      tags: [achievements]
+      summary: Get player achievements
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Player achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerAchievement"
+
+  # --- SOCIAL ---
+  /social/gossip:
+    get:
+      operationId: listGossip
+      tags: [social]
+      summary: Get latest absurd gossip/stories
+      responses:
+        "200":
+          description: Gossip items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GossipItem"
+    post:
+      operationId: generateGossip
+      tags: [social]
+      summary: Generate new gossip for a player action
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateGossipBody"
+      responses:
+        "201":
+          description: Generated gossip
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GossipItem"
+
+  /social/decisions/{playerId}:
+    get:
+      operationId: getPlayerDecisions
+      tags: [social]
+      summary: Get pending decisions for a player
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Pending decisions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Decision"
+    post:
+      operationId: makeDecision
+      tags: [social]
+      summary: Make a decision
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MakeDecisionBody"
+      responses:
+        "200":
+          description: Decision result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionResult"
+
+  # --- ADMIN ---
+  /admin/stats:
+    get:
+      operationId: getAdminStats
+      tags: [admin]
+      summary: Get overall game stats (admin)
+      responses:
+        "200":
+          description: Admin stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminStats"
+
+  /admin/logs:
+    get:
+      operationId: getAdminLogs
+      tags: [admin]
+      summary: Get game activity logs (admin)
+      responses:
+        "200":
+          description: Logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GameLog"
+
+  /traits:
+    get:
+      operationId: listTraits
+      tags: [players]
+      summary: List all personality traits
+      responses:
+        "200":
+          description: Traits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trait"
+
+  /traits/{playerId}:
+    get:
+      operationId: getPlayerTraits
+      tags: [players]
+      summary: Get player's personality traits
+      parameters:
+        - name: playerId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Player traits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PlayerTrait"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +991,925 @@ components:
       required:
         - status
 
+    Player:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        money:
+          type: integer
+        energy:
+          type: integer
+        reputation:
+          type: integer
+        currentHexQ:
+          type: integer
+        currentHexR:
+          type: integer
+        lastSeen:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - money
+        - energy
+        - reputation
+        - currentHexQ
+        - currentHexR
+        - lastSeen
+        - createdAt
+
+    CreatePlayerBody:
+      type: object
+      properties:
+        username:
+          type: string
+      required:
+        - username
+
+    UpdatePlayerBody:
+      type: object
+      properties:
+        money:
+          type: integer
+        energy:
+          type: integer
+        reputation:
+          type: integer
+
+    PlayerSummary:
+      type: object
+      properties:
+        playerId:
+          type: integer
+        moneyGained:
+          type: integer
+        moneyLost:
+          type: integer
+        eventsOccurred:
+          type: array
+          items:
+            type: string
+        visitorsCount:
+          type: integer
+        missionsCompleted:
+          type: integer
+        headline:
+          type: string
+      required:
+        - playerId
+        - moneyGained
+        - moneyLost
+        - eventsOccurred
+        - visitorsCount
+        - missionsCompleted
+        - headline
+
+    MovePlayerBody:
+      type: object
+      properties:
+        hexQ:
+          type: integer
+        hexR:
+          type: integer
+      required:
+        - hexQ
+        - hexR
+
+    MoveResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        newHexQ:
+          type: integer
+        newHexR:
+          type: integer
+        energyUsed:
+          type: integer
+        locationName:
+          type: ["string", "null"]
+        eventTriggered:
+          type: ["string", "null"]
+      required:
+        - success
+        - newHexQ
+        - newHexR
+        - energyUsed
+        - locationName
+        - eventTriggered
+
+    Character:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        name:
+          type: string
+        avatarEmoji:
+          type: string
+        skinTone:
+          type: string
+        hairStyle:
+          type: string
+        outfit:
+          type: string
+        bio:
+          type: string
+      required:
+        - id
+        - playerId
+        - name
+        - avatarEmoji
+        - skinTone
+        - hairStyle
+        - outfit
+        - bio
+
+    UpdateCharacterBody:
+      type: object
+      properties:
+        name:
+          type: string
+        avatarEmoji:
+          type: string
+        skinTone:
+          type: string
+        hairStyle:
+          type: string
+        outfit:
+          type: string
+        bio:
+          type: string
+
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        hexQ:
+          type: integer
+        hexR:
+          type: integer
+        emoji:
+          type: string
+        description:
+          type: string
+        riskLevel:
+          type: integer
+        energyRestore:
+          type: integer
+        minigameId:
+          type: ["integer", "null"]
+      required:
+        - id
+        - name
+        - type
+        - hexQ
+        - hexR
+        - emoji
+        - description
+        - riskLevel
+        - energyRestore
+
+    CreateLocationBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        hexQ:
+          type: integer
+        hexR:
+          type: integer
+        emoji:
+          type: string
+        description:
+          type: string
+        riskLevel:
+          type: integer
+        energyRestore:
+          type: integer
+        minigameId:
+          type: ["integer", "null"]
+      required:
+        - name
+        - type
+        - hexQ
+        - hexR
+        - emoji
+        - description
+        - riskLevel
+        - energyRestore
+
+    House:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        playerName:
+          type: string
+        hexQ:
+          type: integer
+        hexR:
+          type: integer
+        name:
+          type: string
+        style:
+          type: string
+        color:
+          type: string
+        decoration:
+          type: string
+        visitCount:
+          type: integer
+      required:
+        - id
+        - playerId
+        - playerName
+        - hexQ
+        - hexR
+        - name
+        - style
+        - color
+        - decoration
+        - visitCount
+
+    UpdateHouseBody:
+      type: object
+      properties:
+        name:
+          type: string
+        style:
+          type: string
+        color:
+          type: string
+        decoration:
+          type: string
+
+    VisitHouseBody:
+      type: object
+      properties:
+        visitorPlayerId:
+          type: integer
+      required:
+        - visitorPlayerId
+
+    VisitResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        rewardMoney:
+          type: integer
+      required:
+        - success
+        - message
+        - rewardMoney
+
+    GameEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        probability:
+          type: number
+        moneyEffect:
+          type: integer
+        energyEffect:
+          type: integer
+        reputationEffect:
+          type: integer
+        isGlobal:
+          type: boolean
+        isActive:
+          type: boolean
+        emoji:
+          type: string
+        locationId:
+          type: ["integer", "null"]
+        chainedEventId:
+          type: ["integer", "null"]
+      required:
+        - id
+        - name
+        - description
+        - type
+        - probability
+        - moneyEffect
+        - energyEffect
+        - reputationEffect
+        - isGlobal
+        - isActive
+        - emoji
+
+    CreateEventBody:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        probability:
+          type: number
+        moneyEffect:
+          type: integer
+        energyEffect:
+          type: integer
+        reputationEffect:
+          type: integer
+        isGlobal:
+          type: boolean
+        isActive:
+          type: boolean
+        emoji:
+          type: string
+        locationId:
+          type: ["integer", "null"]
+        chainedEventId:
+          type: ["integer", "null"]
+      required:
+        - name
+        - description
+        - type
+        - probability
+        - moneyEffect
+        - energyEffect
+        - reputationEffect
+        - isGlobal
+        - isActive
+        - emoji
+
+    TriggerEventBody:
+      type: object
+      properties:
+        locationId:
+          type: ["integer", "null"]
+        traitModifiers:
+          type: ["string", "null"]
+
+    EventResult:
+      type: object
+      properties:
+        eventTriggered:
+          type: boolean
+        event:
+          type: ["object", "null"]
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            description:
+              type: string
+            emoji:
+              type: string
+            moneyEffect:
+              type: integer
+            energyEffect:
+              type: integer
+            reputationEffect:
+              type: integer
+        message:
+          type: string
+      required:
+        - eventTriggered
+        - message
+
+    Minigame:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        baseReward:
+          type: integer
+        difficulty:
+          type: integer
+        emoji:
+          type: string
+        config:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - id
+        - name
+        - type
+        - description
+        - baseReward
+        - difficulty
+        - emoji
+        - config
+        - isActive
+
+    CreateMinigameBody:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        baseReward:
+          type: integer
+        difficulty:
+          type: integer
+        emoji:
+          type: string
+        config:
+          type: string
+        isActive:
+          type: boolean
+      required:
+        - name
+        - type
+        - description
+        - baseReward
+        - difficulty
+        - emoji
+        - config
+        - isActive
+
+    PlayMinigameBody:
+      type: object
+      properties:
+        playerId:
+          type: integer
+        score:
+          type: integer
+        accuracy:
+          type: number
+      required:
+        - playerId
+        - score
+        - accuracy
+
+    MinigameResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        score:
+          type: integer
+        reward:
+          type: integer
+        message:
+          type: string
+        newMoney:
+          type: integer
+      required:
+        - success
+        - score
+        - reward
+        - message
+        - newMoney
+
+    Mission:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        creatorPlayerId:
+          type: ["integer", "null"]
+        targetPlayerId:
+          type: ["integer", "null"]
+        reward:
+          type: integer
+        type:
+          type: string
+        status:
+          type: string
+        expiresAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - description
+        - reward
+        - type
+        - status
+        - createdAt
+
+    CreateMissionBody:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        creatorPlayerId:
+          type: integer
+        targetPlayerId:
+          type: ["integer", "null"]
+        reward:
+          type: integer
+        type:
+          type: string
+      required:
+        - title
+        - description
+        - creatorPlayerId
+        - reward
+        - type
+
+    UpdateMissionBody:
+      type: object
+      properties:
+        status:
+          type: string
+        reward:
+          type: integer
+
+    CompleteMissionBody:
+      type: object
+      properties:
+        playerId:
+          type: integer
+      required:
+        - playerId
+
+    MissionResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        rewardEarned:
+          type: integer
+      required:
+        - success
+        - message
+        - rewardEarned
+
+    InventoryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        itemName:
+          type: string
+        emoji:
+          type: string
+        description:
+          type: string
+        rarity:
+          type: string
+        effect:
+          type: string
+        quantity:
+          type: integer
+        acquiredAt:
+          type: string
+      required:
+        - id
+        - playerId
+        - itemName
+        - emoji
+        - description
+        - rarity
+        - effect
+        - quantity
+        - acquiredAt
+
+    AddInventoryItemBody:
+      type: object
+      properties:
+        itemName:
+          type: string
+        emoji:
+          type: string
+        description:
+          type: string
+        rarity:
+          type: string
+        effect:
+          type: string
+        quantity:
+          type: integer
+      required:
+        - itemName
+        - emoji
+        - description
+        - rarity
+        - effect
+        - quantity
+
+    Npc:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        emoji:
+          type: string
+        personality:
+          type: string
+        dialogue:
+          type: string
+        locationId:
+          type: ["integer", "null"]
+        spawnProbability:
+          type: number
+        isActive:
+          type: boolean
+      required:
+        - id
+        - name
+        - emoji
+        - personality
+        - dialogue
+        - spawnProbability
+        - isActive
+
+    CreateNpcBody:
+      type: object
+      properties:
+        name:
+          type: string
+        emoji:
+          type: string
+        personality:
+          type: string
+        dialogue:
+          type: string
+        locationId:
+          type: ["integer", "null"]
+        spawnProbability:
+          type: number
+        isActive:
+          type: boolean
+      required:
+        - name
+        - emoji
+        - personality
+        - dialogue
+        - spawnProbability
+        - isActive
+
+    Achievement:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        emoji:
+          type: string
+        condition:
+          type: string
+        rewardMoney:
+          type: integer
+      required:
+        - id
+        - name
+        - description
+        - emoji
+        - condition
+        - rewardMoney
+
+    PlayerAchievement:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        achievementId:
+          type: integer
+        achievementName:
+          type: string
+        achievementEmoji:
+          type: string
+        unlockedAt:
+          type: string
+      required:
+        - id
+        - playerId
+        - achievementId
+        - achievementName
+        - achievementEmoji
+        - unlockedAt
+
+    GossipItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        aboutPlayerId:
+          type: ["integer", "null"]
+        aboutPlayerName:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required:
+        - id
+        - text
+        - createdAt
+
+    GenerateGossipBody:
+      type: object
+      properties:
+        playerId:
+          type: integer
+        action:
+          type: string
+      required:
+        - playerId
+        - action
+
+    Decision:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        optionA:
+          type: string
+        optionB:
+          type: string
+        consequenceA:
+          type: string
+        consequenceB:
+          type: string
+        isResolved:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - playerId
+        - title
+        - description
+        - optionA
+        - optionB
+        - consequenceA
+        - consequenceB
+        - isResolved
+        - createdAt
+
+    MakeDecisionBody:
+      type: object
+      properties:
+        decisionId:
+          type: integer
+        choice:
+          type: string
+      required:
+        - decisionId
+        - choice
+
+    DecisionResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        consequence:
+          type: string
+        moneyEffect:
+          type: integer
+        energyEffect:
+          type: integer
+        reputationEffect:
+          type: integer
+      required:
+        - success
+        - consequence
+        - moneyEffect
+        - energyEffect
+        - reputationEffect
+
+    Trait:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        emoji:
+          type: string
+      required:
+        - id
+        - name
+        - description
+        - emoji
+
+    PlayerTrait:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: integer
+        traitId:
+          type: integer
+        traitName:
+          type: string
+        traitEmoji:
+          type: string
+        level:
+          type: integer
+      required:
+        - id
+        - playerId
+        - traitId
+        - traitName
+        - traitEmoji
+        - level
+
+    AdminStats:
+      type: object
+      properties:
+        totalPlayers:
+          type: integer
+        activePlayers:
+          type: integer
+        totalEvents:
+          type: integer
+        totalMissions:
+          type: integer
+        totalGossip:
+          type: integer
+        averageMoney:
+          type: integer
+        topPlayer:
+          type: ["string", "null"]
+      required:
+        - totalPlayers
+        - activePlayers
+        - totalEvents
+        - totalMissions
+        - totalGossip
+        - averageMoney
+        - topPlayer
+
+    GameLog:
+      type: object
+      properties:
+        id:
+          type: integer
+        playerId:
+          type: ["integer", "null"]
+        playerName:
+          type: ["string", "null"]
+        action:
+          type: string
+        details:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - action
+        - details
+        - createdAt

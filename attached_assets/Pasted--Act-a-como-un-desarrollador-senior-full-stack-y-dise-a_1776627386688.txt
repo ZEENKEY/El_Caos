@@ -1,0 +1,225 @@
+}
+Actúa como un desarrollador senior full-stack y diseñador de juegos móviles.
+
+Crea una aplicación web jugable optimizada para navegador móvil (iOS/Android), usando HTML, CSS, JavaScript (vanilla) y PHP + MySQL, lista para cPanel.
+
+El juego debe ser funcional, divertido y altamente adictivo. No crear solo UI: debe ser jugable.
+
+Puedes mejorar ideas si encuentras mejores soluciones, pero respeta el concepto base.
+
+========================
+🎮 VISIÓN
+========================
+Juego social asincrónico, absurdo y humorístico ambientado en una ciudad estilo Cancún.
+
+Debe generar:
+- momentos graciosos
+- decisiones tontas
+- interacción indirecta entre jugadores
+
+========================
+🧠 CORE LOOP DEL USUARIO
+========================
+Cada vez que el jugador entra:
+
+- recibe algo (dinero, evento, sorpresa)
+- toma decisiones
+- gana o pierde algo
+- se va con ganas de volver
+
+========================
+🎁 SISTEMA DE RETENCIÓN (OBLIGATORIO)
+========================
+
+Al abrir la app:
+- mostrar resumen:
+  - “mientras no estabas…”
+  - eventos ocurridos
+  - ganancias/pérdidas
+
+Notificaciones internas:
+- misiones aprobadas
+- visitas a casa
+- eventos activos
+
+========================
+🗺️ MAPA
+========================
+- hexágonos
+- movimiento libre con energía
+- centro: El Crucero (alto riesgo)
+
+lugares:
+- Oxxo
+- Malecón (recupera energía)
+- Plaza
+- Antro
+- Taxi
+
+Casas:
+- visibles en el mapa (zona exterior)
+- seleccionadas por el jugador al inicio
+
+========================
+🏠 CASAS
+========================
+- editables
+- visibles por otros
+- pueden generar eventos
+- pueden ser visitadas
+
+========================
+🔍 SISTEMA ENTRAR
+========================
+- zoom animado
+- escena visual
+- elementos clickeables
+
+========================
+💼 TRABAJO = MINIJUEGOS
+========================
+
+minijuegos:
+- timing bar (MVP)
+- caja Oxxo
+- tacos
+- ritmo antro
+
+recompensas por habilidad
+
+========================
+🧩 SISTEMAS SOCIALES
+========================
+
+1. Misiones del multiverso
+- creadas por jugadores
+- validadas por otros
+
+2. Historias absurdas
+- generador de chismes falsos
+
+3. Decisiones absurdas
+- afectan el futuro del jugador
+
+========================
+🎲 EVENTOS
+========================
+
+- probabilísticos
+- configurables
+- pueden encadenarse
+
+========================
+🧠 SISTEMA DE PERSONALIDAD
+========================
+
+El jugador desarrolla rasgos:
+- caótico
+- confiable
+- impulsivo
+
+Esto afecta:
+- eventos
+- trabajos
+- decisiones
+
+========================
+🎭 NPCs
+========================
+
+NPCs con identidad:
+- nombres únicos
+- comportamiento
+- apariciones recurrentes
+
+========================
+🎒 INVENTARIO
+========================
+
+- objetos raros
+- algunos inútiles
+- otros con efectos
+
+========================
+🏆 LOGROS
+========================
+
+- absurdos
+- humorísticos
+- desbloqueables
+
+========================
+🌎 EVENTOS GLOBALES
+========================
+
+- afectan todo el mapa
+- temporales
+
+========================
+📤 MOMENTOS COMPARTIBLES
+========================
+
+Generar textos tipo:
+“Jugador hizo X cosa absurda”
+
+========================
+⚙️ CONFIG
+========================
+
+- sonido
+- música
+- modo oscuro
+- reset
+
+========================
+🧠 ARQUITECTURA
+========================
+
+TODO dinámico desde base de datos
+
+tablas:
+- users
+- characters
+- houses
+- locations
+- events
+- missions
+- decisions
+- minigames
+- npcs
+- inventory
+- traits
+- logs
+
+========================
+🛠️ ADMIN PANEL (/admin)
+========================
+
+CRUD completo:
+- jugadores
+- lugares
+- eventos
+- NPCs
+- minijuegos
+- misiones
+
+editar probabilidades
+ver logs
+
+========================
+🎯 OBJETIVO
+========================
+
+- mapa funcional
+- casas visibles
+- minijuego funcionando
+- eventos dinámicos
+- sistema social básico
+- admin panel funcional
+
+========================
+
+El juego debe sentirse:
+divertido, caótico, ligero y adictivo.
+
+Optimizado para móvil y fácil de expan
