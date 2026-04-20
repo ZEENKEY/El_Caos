@@ -19,21 +19,23 @@ export default function AuthPage() {
     if (!username.trim()) return;
 
     createPlayer.mutate(
-      { data: { username } },
+      { data: { username: username.trim() } },
       {
         onSuccess: (data) => {
           setPlayerId(data.id);
           toast({
-            title: "Welcome to Chaos!",
-            description: `Get ready, ${data.username}!`,
+            title: "Bienvenido al Caos!",
+            description: `Preparate, ${data.username}!`,
           });
           setLocation("/game");
         },
-        onError: () => {
+        onError: (err) => {
+          const msg = err instanceof Error ? err.message : "Error desconocido";
+          logError("auth_create_player", msg, { username });
           toast({
             variant: "destructive",
-            title: "Error",
-            description: "Failed to enter the city.",
+            title: "Error al entrar",
+            description: "No se pudo conectar con el servidor. Intenta de nuevo.",
           });
         },
       }
@@ -61,22 +63,24 @@ export default function AuthPage() {
           <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-primary via-secondary to-accent tracking-tighter uppercase drop-shadow-sm mb-2">
             Cancun Chaos
           </h1>
-          <p className="text-xl font-bold text-muted-foreground">Where bad decisions meet great entertainment</p>
+          <p className="text-xl font-bold text-muted-foreground">Donde las malas decisiones son el mejor entretenimiento</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4 bg-card p-6 rounded-3xl border border-border shadow-xl">
           <div className="space-y-2">
             <label className="text-sm font-bold text-card-foreground uppercase tracking-wider" htmlFor="username">
-              Enter your alias
+              Ingresa tu alias
             </label>
             <Input
               id="username"
               type="text"
-              placeholder="e.g. LocoLarry, SunburnSally"
+              placeholder="ej. LocoCharly, PlayaPatricia"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="text-lg p-6 rounded-2xl bg-muted/50 border-2 border-transparent focus:border-primary transition-colors font-bold"
               disabled={createPlayer.isPending}
+              maxLength={30}
+              autoComplete="off"
             />
           </div>
           
@@ -85,15 +89,25 @@ export default function AuthPage() {
             className="w-full text-lg py-6 rounded-2xl font-black tracking-wider shadow-lg active:scale-95 transition-all"
             disabled={createPlayer.isPending || !username.trim()}
           >
-            {createPlayer.isPending ? "Entering City..." : "START CHAOS"}
+            {createPlayer.isPending ? "Entrando al caos..." : "INICIAR CAOS"}
           </Button>
         </form>
 
         <div className="mt-8 flex justify-center gap-6 text-muted-foreground font-bold text-sm">
-          <div className="flex items-center gap-2"><Map size={16} /> Explore</div>
-          <div className="flex items-center gap-2"><Zap size={16} /> Survive</div>
+          <div className="flex items-center gap-2"><Map size={16} /> Explorar</div>
+          <div className="flex items-center gap-2"><Zap size={16} /> Sobrevivir</div>
         </div>
       </motion.div>
     </div>
   );
+}
+
+function logError(action: string, message: string, context?: object) {
+  try {
+    fetch("/api/consola/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, message, context, url: window.location.href }),
+    }).catch(() => {});
+  } catch {}
 }

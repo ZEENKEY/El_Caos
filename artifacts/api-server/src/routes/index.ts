@@ -12,9 +12,11 @@ import socialRouter from "./social";
 import achievementsRouter from "./achievements";
 import traitsRouter from "./traits";
 import adminRouter from "./admin";
+import consolaRouter from "./consola";
 
 const router: IRouter = Router();
 
+router.use(consolaRouter);
 router.use(healthRouter);
 router.use(playersRouter);
 router.use(charactersRouter);

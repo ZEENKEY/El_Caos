@@ -15,6 +15,7 @@ import MissionsPage from "@/pages/missions";
 import AchievementsPage from "@/pages/achievements";
 import HousePage from "@/pages/house";
 import AdminPage from "@/pages/admin";
+import ConsolaPage from "@/pages/consola";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -82,6 +83,7 @@ function Router() {
         </AuthGuard>
       </Route>
       <Route path="/admin" component={AdminPage} />
+      <Route path="/consola/consola" component={ConsolaPage} />
       <Route component={NotFound} />
     </Switch>
   );
